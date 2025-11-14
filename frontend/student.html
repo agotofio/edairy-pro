@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="uk"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Student Dashboard</title><link rel="stylesheet" href="styles.css"></head><body>
+<div class="container">
+  <div class="header-row"><div style="display:flex;gap:12px;align-items:center"><div class="logo-mark">ФК</div><div style="color:white"><div style="font-weight:800">Мій кабінет</div><div class="small">Студент</div></div></div><div id="top-user"></div></div>
+  <div class="layout">
+    <aside class="sidebar card"><nav style="display:flex;flex-direction:column;gap:8px"><a class="nav-link" href="index.html">Головна</a><a class="nav-link" href="subjects.html">Предмети</a><a class="nav-link" href="journal.html">Журнал</a></nav></aside>
+    <main style="flex:1">
+      <div class="card"><h2>Мої оцінки</h2><div id="grades"></div></div>
+    </main>
+  </div>
+</div>
+<script type="module">
+import { supabase } from './supabase-init.js';
+async function load(){
+  const s = await supabase.auth.getSession();
+  if(!s.data.session){ location='login.html'; return; }
+  const user = s.data.session.user;
+  // fetch grades (requires DB users sync)
+  const { data, error } = await supabase.from('grades').select('id,value,type,comment,date,subjects(title)').eq('student_id', user.id).order('date', {ascending:false});
+  if(error){ document.getElementById('grades').textContent = 'Error: '+error.message; return; }
+  if(!data || data.length===0){ document.getElementById('grades').textContent = 'Оцінок поки що немає.'; return; }
+  const html = ['<table><thead><tr><th>Дата</th><th>Предмет</th><th>Тип</th><th>Оцінка</th><th>Коментар</th></tr></thead><tbody>'];
+  data.forEach(g=> html.push(`<tr><td>${g.date}</td><td>${g.subjects?.title||''}</td><td>${g.type||''}</td><td>${g.value||''}</td><td>${g.comment||''}</td></tr>`));
+  html.push('</tbody></table>');
+  document.getElementById('grades').innerHTML = html.join('');
+}
+load();
+</script>
+</body></html>

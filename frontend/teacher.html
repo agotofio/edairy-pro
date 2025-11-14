@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="uk"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Teacher</title><link rel="stylesheet" href="styles.css"></head><body>
+<div class="container">
+  <div class="header-row"><div style="display:flex;gap:12px;align-items:center"><div class="logo-mark">ФК</div><div style="color:white"><div style="font-weight:800">Кабінет викладача</div><div class="small">Виставлення оцінок</div></div></div><div id="top-user"></div></div>
+  <div class="layout">
+    <aside class="sidebar card"><nav style="display:flex;flex-direction:column;gap:8px"><a class="nav-link" href="index.html">Головна</a><a class="nav-link" href="subjects.html">Предмети</a><a class="nav-link" href="journal.html">Журнал</a></nav></aside>
+    <main style="flex:1">
+      <div class="card"><h2>Виставити оцінку</h2>
+        <form id="grade-form">
+          <div class="form-row"><input class="input" id="student_id" placeholder="Student ID (uuid)"></div>
+          <div class="form-row"><select id="subject_id" class="input"><option value="">Завантаження...</option></select></div>
+          <div class="form-row"><input class="input" id="value" placeholder="Оцінка (число)"></div>
+          <div class="form-row"><input class="input" id="type" placeholder="Тип (test/homework)"></div>
+          <div style="display:flex;gap:8px"><button class="btn" type="submit">Додати</button></div>
+        </form>
+        <div id="msg" class="small"></div>
+      </div>
+    </main>
+  </div>
+</div>
+<script type="module">
+import { supabase } from './supabase-init.js';
+async function loadSubjects(){
+  const { data } = await supabase.from('subjects').select('id,title').limit(100);
+  const sel = document.getElementById('subject_id');
+  sel.innerHTML = data.map(s=>`<option value="${s.id}">${s.title}</option>`).join('');
+}
+document.getElementById('grade-form').addEventListener('submit', async e=>{
+  e.preventDefault();
+  const student_id = document.getElementById('student_id').value;
+  const subject_id = document.getElementById('subject_id').value;
+  const value = parseFloat(document.getElementById('value').value);
+  const type = document.getElementById('type').value;
+  const { data, error } = await supabase.from('grades').insert([{ student_id, subject_id, value, type }]);
+  document.getElementById('msg').textContent = error ? error.message : 'Оцінку додано';
+});
+loadSubjects();
+</script>
+</body></html>

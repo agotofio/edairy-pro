@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="uk"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Admin</title><link rel="stylesheet" href="styles.css"></head><body>
+<div class="container">
+  <div class="header-row"><div style="display:flex;gap:12px;align-items:center"><div class="logo-mark">ФК</div><div style="color:white"><div style="font-weight:800">Панель Адміна</div><div class="small">Керування користувачами</div></div></div><div id="top-user"></div></div>
+  <div class="layout">
+    <aside class="sidebar card"><nav style="display:flex;flex-direction:column;gap:8px"><a class="nav-link" href="index.html">Головна</a><a class="nav-link" href="subjects.html">Предмети</a></nav></aside>
+    <main style="flex:1">
+      <div class="card"><h2>Імпорт студентів</h2>
+        <p class="small">Завантажте CSV зі списком студентів (email,full_name,group)</p>
+        <input type="file" id="csvfile" />
+        <div id="msg" class="small"></div>
+      </div>
+    </main>
+  </div>
+</div>
+<script type="module">
+import { supabase } from './supabase-init.js';
+document.getElementById('csvfile').addEventListener('change', async (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const text = await file.text();
+  // naive CSV parse
+  const rows = text.split('\n').map(r=>r.trim()).filter(Boolean);
+  const users = rows.map(r=>{ const [email, full_name, group] = r.split(','); return { email, full_name };});
+  // In real flow: create auth users via admin endpoint or use service_role key on server.
+  document.getElementById('msg').textContent = 'Файл прочитано. Для створення користувачів потрібен серверний endpoint.';
+});
+</script>
+</body></html>

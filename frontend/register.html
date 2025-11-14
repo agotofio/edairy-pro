@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="uk">
+<head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Register</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="container">
+  <div class="card">
+    <h2>Реєстрація (для тесту)</h2>
+    <form id="reg-form">
+      <div class="form-row"><input class="input" id="email" placeholder="Email" type="email" required></div>
+      <div class="form-row"><input class="input" id="password" placeholder="Пароль" type="password" required></div>
+      <div class="form-row"><input class="input" id="fullname" placeholder="Прізвище Ім'я" type="text" required></div>
+      <div class="form-row"><select id="role" class="input"><option value="student">Student</option><option value="teacher">Teacher</option></select></div>
+      <div style="display:flex;gap:8px"><button class="btn" type="submit">Зареєструватися</button></div>
+    </form>
+    <div id="msg" class="small"></div>
+  </div>
+</div>
+<script type="module">
+import { supabase } from './supabase-init.js';
+const form=document.getElementById('reg-form');
+const msg=document.getElementById('msg');
+form.addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const email=document.getElementById('email').value;
+  const password=document.getElementById('password').value;
+  const fullname=document.getElementById('fullname').value;
+  const role=document.getElementById('role').value;
+  const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { full_name: fullname, role } } });
+  if (error){ msg.textContent = error.message; return; }
+  msg.textContent = 'Перевірте email для підтвердження. Після підтвердження користувача необхідно синхронізувати в таблицю users (адмін).';
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="uk">
+<head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Електронний щоденник — Demo</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="container">
+  <div class="header-row">
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="logo-mark">ФК</div>
+      <div style="color:white">
+        <div style="font-weight:800">Електронний щоденник</div>
+        <div class="small">Demo / Supabase integration</div>
+      </div>
+    </div>
+    <div id="top-user"></div>
+  </div>
+  <div class="layout">
+    <aside class="sidebar card">
+      <div style="font-weight:800;margin-bottom:8px;color:white">Навігація</div>
+      <nav style="display:flex;flex-direction:column;gap:8px">
+        <a class="nav-link" href="index.html">Головна</a>
+        <a class="nav-link" href="journal.html">Журнал</a>
+        <a class="nav-link" href="subjects.html">Предмети</a>
+        <a class="nav-link" href="timetable.html">Розклад</a>
+        <a class="nav-link" href="assignments.html">ДЗ</a>
+        <a class="nav-link" href="student.html">Профіль</a>
+        <a class="nav-link" href="teacher.html">Кабінет викладача</a>
+        <a class="nav-link" href="admin.html">Адмін</a>
+      </nav>
+    </aside>
+    <main style="flex:1">
+      <div class="card">
+        <h2>Welcome</h2>
+        <p class="small">This demo integrates your static UI with Supabase as backend. Authenticate to test dashboards.</p>
+        <div style="margin-top:12px">
+          <a class="btn" id="btn-login" href="login.html">Увійти</a>
+        </div>
+      </div>
+    </main>
+  </div>
+  <div class="footer">© Demo</div>
+</div>
+<script type="module">
+import { supabase } from './supabase-init.js';
+import { onAuthStateChange } from './auth.js';
+
+function renderTop(user){
+  const top=document.getElementById('top-user');
+  if(user){
+    top.innerHTML = '<div style="display:flex;gap:10px;align-items:center"><div class="role-pill">'+(user.user_metadata?.role || user.user?.role || 'user')+'</div><div style="font-weight:700">'+(user.user_metadata?.full_name || user.user?.email)+'</div><button onclick="signout()" class="btn" style="background:#ff5c7a">Вихід</button></div>';
+  } else {
+    top.innerHTML = '<a class="btn" href="login.html">Увійти</a>';
+  }
+}
+
+window.signout = async function(){
+  await supabase.auth.signOut();
+  location='login.html';
+}
+
+supabase.auth.getSession().then(r => renderTop(r.data.session));
+supabase.auth.onAuthStateChange((event, session) => renderTop(session));
+</script>
+</body>
+</html>
